@@ -1,0 +1,5 @@
+cp .env.example .env
+
+buka file .env, sesuain nama database nyeee
+
+php artisan key:generate
