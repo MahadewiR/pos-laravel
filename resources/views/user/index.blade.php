@@ -26,11 +26,11 @@
                         <td>{{ $user->email }}</td>
                         <td>
                             <a href="{{ route('user.edit', $user->id) }}" class="btn btn-outline-primary">Edit</a> |
-                            <form action="{{ route('user.destroy', $user->id) }}"
-                                class="d-inline btn btn-outline-danger">Delate</form>
-                            @csrf
-                            @method('DELETE')
-                            {{-- <a href="{{ route('user.delete', $user->id) }}" class="btn btn-outline-danger btn xs">Delete</a> --}}
+                            <form action="{{ route('user.destroy', $user->id) }}" class="d-inline" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn xs">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

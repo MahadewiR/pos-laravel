@@ -26,8 +26,7 @@
         @include('inc.sidebar')
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper"
-            style="background-image: linear-gradient(to right, rgba(5,111,146,1) , rgba(243, 203, 212));">
+        <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <div class="container-fluid">
@@ -50,7 +49,8 @@
 
                 <!-- Default box -->
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="background: rgb(170, 192, 192) 13.5%">
+
                         <h3 class="card-title">@yield('title')</h3>
 
                         <div class="card-tools">
@@ -64,6 +64,7 @@
                     </div>
                     <div class="card-body">
                         @yield('content')
+                        @include('sweetalert::alert')
                     </div>
                     <!-- /.card-body -->
                     <div class="card-footer">
@@ -103,8 +104,9 @@
     <!-- AdminLTE for demo purposes -->
     <script src="{{ asset('Adm/dist/js/demo.js') }}"></script>
 
+    @include('sweetalert::alert', ['cdn' => "https://cdn.jsdelivr.net/npm/sweetalert2@9"])
+
     <script>
-        // Event handler untuk perubahan pada #category_id
         $('#category_id').change(function() {
             let category_id = $(this).val(),
                 option = "";
@@ -114,10 +116,10 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(resp) {
-                    option += "<option value=''>Pilih Produk</option>";
+                    option += "<option value=''>Pilih Produk</option>"
                     $.each(resp, function(index, val) {
                         option += "<option value='" + val.id + "'>" + val.product_name +
-                            "</option>";
+                            "</option>"
                     });
                     $('#product_id').html(option);
                 }
@@ -138,45 +140,66 @@
             });
         });
 
-        // Event handler untuk klik tombol .tambah-produk
-        $('.tambah-produk').click(function() {
-            let category_id = $('#category_id').val(),
-                produk_id = $('#product_id').val();
+        $(document).ready(function() {
+            $('.tambah-produk').click(function() {
+                let category_id = $('#category_id').val(),
+                    produk_id = $('#product_id').val();
 
-            if (category_id === "") {
-                alert('Mohon pilih kategori terlebih dahulu!');
-                return false;
-            }
-            if (produk_id === "") {
-                alert('Mohon pilih produk terlebih dahulu!');
-                return false;
-            }
+                if (category_id == "") {
+                    alert("Mohon Pilih Kategori Terlebih Dahulu!");
+                    return false;
+                }
+                if (produk_id == "") {
+                    alert("Mohon Pilih Produk Terlebih Dahulu!");
+                    return false;
+                }
 
-            let product_qty = parseInt($('#product_qty').val()),
-                product_name = $('#product_name').val(),
-                product_price = parseInt($('#product_price').val());
-            let subTotal = product_price * product_qty;
+                let product_qty = $('#product_qty').val(),
+                    product_name = $('#product_name').val(),
+                    product_price = parseInt($('#product_price').val()),
+                    subTotal = product_price * product_qty;
 
-            let newRow = "";
-            newRow += "<tr>";
-            newRow += "<td>" + product_name + "</td>";
-            newRow += "<td>" + product_price.toLocaleString('id-ID') + "</td>";
-            newRow += "<td>" + product_qty + "</td>";
-            newRow += "<td>" + subTotal.toLocaleString('id-ID') +
-                "<input type='hidden' class='sub_total_val' value='" + subTotal + "'> </td>";
-            newRow += "<td></td>";
-            newRow += "</tr>";
+                let newRow = "";
+                newRow += "<tr>";
+                newRow +=
+                    `<td>${product_name}<input type='hidden' name='product_id[]' value='${produk_id}'></td>`;
+                newRow += "<td>" + product_price.toLocaleString('id-ID') + "</td>";
+                newRow += "<td>" + product_qty + "<input type='hidden' name='qty[]' value='" + product_qty +
+                    "'></td>";
+                newRow += "<td>" + subTotal.toLocaleString('id-ID') +
+                    "<input type='hidden' name='sub_total_val[]' class='sub_total_val' value='" + subTotal +
+                    "'></td>";
+                newRow += "<td></td>";
+                newRow += "</tr>";
 
-            $('tbody').append(newRow);
-
-            // Menghitung total keseluruhan
-            let total = 0;
-            $('.sub_total_val').each(function() {
-                let subTotal = parseFloat($(this).val()) || 0;
-                total += subTotal;
+                $('tbody').append(newRow);
+                calculateChange();
+                updateTotals();
             });
 
-            $('.total_price').text(total.toLocaleString('id-ID'));
+            $('#dibayar').on('change keyup', function() {
+                calculateChange();
+            });
+
+            function updateTotals() {
+                let total = 0;
+                $('.sub_total_val').each(function() {
+                    let subTotal = parseFloat($(this).val()) || 0;
+                    total += subTotal;
+                });
+                $('.total_price').text(total.toLocaleString('id-ID'));
+                $('#total_price_val').val(total);
+            }
+
+            function calculateChange() {
+                let total = parseFloat($('#total_price_val').val() || 0);
+                let dibayar = parseFloat($('#dibayar').val()) || 0;
+                let kembali = dibayar - total;
+                console.log(kembali);
+
+                $('.kembalian_text').text(kembali);
+                $('#kembalian').val(kembali);
+            }
         });
     </script>
 </body>
